@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <style>
+        .needsContainer {
+            width: 30vw;
+            height: 3vw;
+            border: solid black;
+        }
+
+        .needsContent {
+            width: 30vw;
+            height: 3vw;
+        }
+
+        .student {
+            width: 300px;
+            height: 200px;
+        }
+
+        .items {
+            width: 50px;
+            height: 40px;
+        }
+    </style>
+
+    <div id="app"></div>
+    <div id="selectType"></div>
+    <div id="bars"></div>
+
+    <script>
+        // model
+        let maxNeedsValue = 100;
+        // needs
+        let hunger = 40;
+        let thirst = 60;
+        let relief = 30;
+        let forelesningProgress = 0;
+
+        let isAlive = true;
+        let student = "itstudent.png";
+        let txt = ''
+        let barsHTML = document.getElementById('bars');
+
+        // view
+        let appObject = document.getElementById('app');
+
+        showView();
+        showSelectedType()
+        function showView() {
+             checkIfDead();
+             checkStats();
+   
+            let html = '';
+            html += `
+                    <h2>Hold Claude i live til forelesningen er ferdig!</h2>
+                    <div><img class="student" src="./images/${student}"></div>
+                    <p>${txt}</p>
+                    
+            `;
+            appObject.innerHTML = html;
+
+        }
+
+        function showSelectedType(){
+            let html = `
+            Ta en slurk vann:<img src="./images/vann.png"  onclick="selectType('thirst')" class="items"><br>
+            Ta en matbit:<img src="./images/mat.png"  onclick="selectType('hunger')" class="items"><br>
+            Mediter litt:<img src="./images/pause.png" onclick="selectType('relief')" id="pause" class="items"><br>`
+            document.getElementById('selectType').innerHTML += html;
+        }
+       
+
+
+        updateOnlyBars();
+        function updateOnlyBars() {
+          
+            forelesningProgress += 0.1;
+            barsHTML.innerHTML = `            
+            Hunger:${drawBar(hunger, null)}
+            Thirst:${drawBar(thirst, null)}
+            Stress:${drawBar(relief, null)}
+            Progresjon av forelesning: ${drawBar(forelesningProgress, "blue")}`;
+            showView();
+        }
+
+        function drawBar(percentageFilled, color) {
+            let barColor = 'green';
+            if (percentageFilled < 67) {
+                barColor = 'yellow';
+            }
+            else if (percentageFilled < 33) {
+                barColor = 'red';
+            }
+            else if (color == 'blue')
+                barColor = 'blue';
+         
+            let html = `
+                <div class="needsContainer">
+                    <div class="needsContent" style="width: ${percentageFilled}%; background-color: ${barColor}"></div>
+                </div>
+            `;
+            return html;
+        }
+
+        // controller
+
+        // main loop
+        myTimer = setInterval(updateOnlyBars, 100);
+
+        function selectType(selectedItem){
+        
+            let fillAmount = 10;
+            if(selectedItem == 'hunger' && hunger < maxNeedsValue -10){
+                hunger += fillAmount;
+            }
+            else if(selectedItem == 'thirst' && thirst < maxNeedsValue -10){
+                thirst += fillAmount;
+            }
+            else if(selectedItem == 'relief' && relief < maxNeedsValue -10){
+                relief += fillAmount;
+            }
+            updateOnlyBars();
+        }
+        function decrementNeeds() {
+            if (hunger > 0)
+                hunger -= 0.05;
+            if (thirst > 0)
+                thirst -= 0.2;
+            if (relief > 0)
+                relief -= 0.1;
+          
+        }
+
+        function checkIfDead(){
+            if (hunger <= 0 || thirst <= 0 || relief <= 0){
+                isAlive = false;
+                student = 'itstudentL.png';
+                txt = 'Åneeei claude døde, det var trist! Better luck next time!'
+                barsHTML.innerHTML = ''
+                clearInterval(myTimer)
+                showView();
+            }
+            else {
+                 decrementNeeds();
+            }
+          
+            return isAlive; 
+        }
+
+        function checkStats(){
+        
+          if(forelesningProgress >= 100) {
+                student = 'itstudentW.png';
+                txt = 'Du klarte det, superkult!';
+                  barsHTML.innerHTML = ''
+                clearInterval(myTimer)
+            }
+        
+       
+            return 
+        }
+
+       
+
+     
+    </script>
+
+
+</body>
+
+</html>
